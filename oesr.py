@@ -10,9 +10,15 @@ import click
 import tempfile
 from xkcdpass import xkcd_password
 
+CYAN = "\033[96m"
+GREEN = "\033[92m"
+FAIL = "\033[91m"
+ENDC = "\033[0m"
+BOLD = "\033[1m"
+
 
 def error(msg):
-    print(f"ERROR! {msg}", file=sys.stderr)
+    print(f"{FAIL}ERROR! {msg}{ENDC}", file=sys.stderr)
     sys.exit(1)
 
 
@@ -28,11 +34,9 @@ def create_file(path, content):
     return path
 
 
-def gen_gnupg_dir():
+def set_gnupg_dir(path):
     """Generate a temp directory and set it as gnupg home"""
-    gnupg_path = tempfile.mkdtemp(dir="/tmp", prefix="oesr-gnupg")
-    os.environ["GNUPGHOME"] = gnupg_path
-    return gnupg_path
+    os.environ["GNUPGHOME"] = path
 
 
 def gen_person_pseudonym():
@@ -51,7 +55,9 @@ def ssss_split(passphrase, threshold, num):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
+
     output, err = p.communicate(input=passphrase.encode())
+
     if p.returncode != 0:
         error(f"ssss_split failed:{err.decode()}`")
     return output.decode().splitlines()
@@ -66,6 +72,7 @@ def ssss_combine(shares):
         stderr=subprocess.PIPE,
     )
 
+    # Join the list of shares to be new line separated string instead
     output, err = p.communicate(input="\n".join(shares).encode())
     if p.returncode != 0:
         error(f"ssss_combine failed:{err.decode()}`")
@@ -77,6 +84,7 @@ def gen_pgp_key(pw_file, identity):
     subprocess.check_output(
         [
             "gpg",
+            "--no-permission-warning",
             "--pinentry-mode",
             "loopback",
             "--batch",
@@ -96,6 +104,7 @@ def export_pgp(path, identity):
     subprocess.check_output(
         [
             "gpg",
+            "--no-permission-warning",
             "-o",
             path,
             "--export",
@@ -109,9 +118,11 @@ def export_pgp(path, identity):
 
 def pgp_fingerprint(identity):
     """Get fingerprint for the identity"""
+    # list the keys with the identity in machine readable output
     out = subprocess.check_output(
         [
             "gpg",
+            "--no-permission-warning",
             "--list-keys",
             "--with-colons",
             f"{identity}@oesr.local",
@@ -119,15 +130,21 @@ def pgp_fingerprint(identity):
     ).decode()
 
     for line in out.splitlines():
+        # Find the fingerprint line
         if line.startswith("fpr"):
+            # The 10th column always has the fingerprint
             fingerprint = line.split(":")[9]
             return fingerprint
 
 
 def verify_pgp_passphrase(pw_file, identity):
-    out = subprocess.check_output(
+    """Verify that the pgp key can be opened with the passphrase file"""
+
+    # throws an exception if it the command is not successful
+    subprocess.check_output(
         [
             "gpg",
+            "--no-permission-warning",
             "--pinentry-mode",
             "loopback",
             "--batch",
@@ -137,7 +154,34 @@ def verify_pgp_passphrase(pw_file, identity):
             "-a",
             f"{identity}@oesr.local",
         ]
-    ).decode()
+    )
+
+    # The subprocess will return error if the command failed, so if it doesn't do that then it succeeeded
+    return True
+
+
+def lint_pgp(identity):
+    """Run hopenpgp-tools on the gpg key to give linter output for best practices"""
+
+    # Get the binary output of the public gpg certificate
+    out = subprocess.check_output(
+        ["gpg", "--no-permission-warning", "--export", f"{identity}@oesr.local"]
+    )
+
+    # Pipe the gpg certificate into hopenpgp-tools lint
+    p = subprocess.Popen(
+        ["hokey", "lint"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    output, err = p.communicate(input=out)
+
+    if p.returncode != 0:
+        error(f"pgp lint failed: {err.decode()}`")
+
+    print(output.decode())
 
 
 def init_oesr(output_dir, people, threshold, num):
@@ -152,11 +196,12 @@ def init_oesr(output_dir, people, threshold, num):
         os.makedirs(f"{output_dir}/{person}", exist_ok=True)
         os.makedirs(f"{output_dir}/{person}/shares", exist_ok=True)
 
-    # Generate a tempdir and set it as GNUPGHOME
-    gnupg_path = gen_gnupg_dir()
+    # Generate gnupg output dir
+    os.makedirs(f"{output_dir}/gnupg", exist_ok=True)
+    set_gnupg_dir(f"{output_dir}/gnupg")
 
     for person in people:
-        # Generate a pseudonym for the person to use as pgp identity
+        # Generate a pseudonym for the person to use as pgp identity so the real name is not disclosed
         pgp_identity = gen_person_pseudonym()
 
         # Generate a password to use for pgp
@@ -188,7 +233,7 @@ def init_oesr(output_dir, people, threshold, num):
 
     for person in people:
         # Copy over the keychain to the persons output dir
-        shutil.copytree(gnupg_path, f"{output_dir}/{person}/gnupg")
+        shutil.copytree(f"{output_dir}/gnupg", f"{output_dir}/{person}/gnupg")
 
         # Export public key into the public output dir
         pgp_pub_path = export_pgp(
@@ -234,6 +279,9 @@ def read(path):
 @cmd.command()
 @click.option("-o", "output_dir", required=True, help="Output directory.")
 def verify(output_dir):
+    """Run some basic verifications."""
+
+    set_gnupg_dir(f"{output_dir}/gnupg")
     oesr_config = json.loads(read(f"{output_dir}/public/oesr.json"))
 
     for person, data in oesr_config["people"].items():
@@ -245,20 +293,37 @@ def verify(output_dir):
                     read(f"{output_dir}/{other_person}/shares/{person}.share")
                 )
 
+        # Get T number of shares (the minimum necessary to restore)
         secret_restored = ssss_combine(shares[: oesr_config["threshold"]])
+        # Get the original passphrase
         secret_original = read(f"{output_dir}/{person}/passphrase")
 
-        print(f"\nCHECK: {person}({data['identity']}@oesr.local)")
+        # Verify that the secret restored from the threshold number of shares is the same as the original.
+        print(f"\n{BOLD}{CYAN}CHECK!{ENDC} {person}({data['identity']}@oesr.local)")
         if secret_restored == secret_original:
             print(
-                "OK! restored secret (using threshold * shares) matches original secret"
+                f"{BOLD}{GREEN}OK!{ENDC} restored secret (using threshold * shares) matches original secret"
             )
 
+        # Verify that the specific gpg key can be opened with it's respective passphrase
         if verify_pgp_passphrase(f"{output_dir}/{person}/passphrase", data["identity"]):
-            print("OK! passphrase saved can unlock the private key.")
+            print(
+                f"{BOLD}{GREEN}OK!{ENDC} passphrase saved can unlock the private key."
+            )
 
 
-# verify()
-# cmd()
-#if __name__ == "__main__":
-    #cmd()
+@cmd.command()
+@click.option("-o", "output_dir", required=True, help="Output directory.")
+def lint(output_dir):
+    """Lint each persons certificate and print result."""
+
+    set_gnupg_dir(f"{output_dir}/gnupg")
+    oesr_config = json.loads(read(f"{output_dir}/public/oesr.json"))
+
+    for person, data in oesr_config["people"].items():
+        print(f"{BOLD}{CYAN}LINT!{ENDC} {person}")
+        lint_pgp(data["identity"])
+
+
+if __name__ == "__main__":
+    cmd()
