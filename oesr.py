@@ -24,9 +24,8 @@ def error(msg):
     print(msg)
     sys.exit(1)
 
-def pgp_keygen(email, name, t, n):
+def pgp_keygen(pw, email, name, t, n):
     """Generate pgp key"""
-    pw = pwgen()
     subprocess.check_output(
         [
             "gpg",
@@ -105,8 +104,11 @@ def generate(config_path, out_dir, gnupg_dir, threshold):
 
     # Generate shares of password
     for share_email, data in identities.items():
-        pgp_shares = pgp_keygen(share_email, data['name'], threshold, len(identities) - 1)
+
+        pw = pwgen()
+        pgp_shares = pgp_keygen(pw, share_email, data['name'], threshold, len(identities) - 1)
         identities[share_email]['shares'] = pgp_shares
+        identities[share_email]['pw'] = pgp_shares
         #identities[share_email]['shares'] = ssss_split(pw, threshold, len(identities) - 1, share_email)
 
         for email in identities.keys():
@@ -132,7 +134,7 @@ def generate(config_path, out_dir, gnupg_dir, threshold):
 
     # Export public keys
     for email in out.keys():
-        pgp_export_pub(share_email, f"{out_dir}/all/{email}.pgp.pub")
+        pgp_export_pub(email, f"{out_dir}/all/{email}.pgp.pub")
 
 
 @cmd.command()
