@@ -19,21 +19,21 @@ $out/gnupg/
 
 $out/$person/
 
-$out/$person/passphrase # the users own passphrase to be used with gpg --passphrase-file.
+$out/$person/passphrase - the users own passphrase to be used with gpg --passphrase-file.
 
-			# This will all have luks on it so it will be encrypted and one person cannot cause any damage if they are naughty.
+			- This will all have luks on it so it will be encrypted and one person cannot cause any damage if they are naughty.
+			
+$out/$person/gnupg  - The gnupg keychain with all the keys (encrypted with their individual passphrases of course)
 
-$out/$person/gnupg  # The gnupg keychain with all the keys (encrypted with their individual passphrases of course)
-
-$out/$person/shares/$other-person.share # one of the N shares of the other people in the oesr circle's passphrase
+$out/$person/shares/$other-person.share - one of the N shares of the other people in the oesr circle's passphrase
 
 $out/public
 
-$out/public/$person.pgp.pub # public key export
+$out/public/$person.pgp.pub - public key export
 
-$out/public/oesr.json # oser circle details containing the real name, the gpg identity and the fingerprint. 
+$out/public/oesr.json - oser circle details containing the real name, the gpg identity and the fingerprint. 
 
-		      # To be used for automate the creation of new oesr backup items.
+		      - To be used for automate the creation of new oesr backup items.
 
 
 _oesr.json example_
