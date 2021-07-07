@@ -10,7 +10,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
         sss-cli = pkgs.callPackage ./sss-cli { };
   	oesrApp = pkgs.poetry2nix.mkPoetryApplication {
-	propagatedBuildInputs = [ sss-cli];
+		buildInputs = [ sss-cli ];
   	  projectDir = ./.;
   	};
 
