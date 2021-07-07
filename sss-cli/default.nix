@@ -1,9 +1,9 @@
-{ pkgs ? <nixpkgs>, rustPlatform, cmake, pkgconfig }:
+{ rustPlatform, cmake, pkgconfig }:
 
-#with (import <nixpkgs> {});
-with pkgs;
+with (import <nixpkgs> {});
+#with nixpkgs;
 rustPlatform.buildRustPackage rec {
-  #cargoPatches = [ ./cargo.patch ];
+  cargoPatches = [ ./cargo.patch ];
   name = "sss-${version}";
   version = "v0.1";
   src = fetchGit {
@@ -15,9 +15,12 @@ rustPlatform.buildRustPackage rec {
     #sha256 = "0ipw864gxvp0pf787pgmmfn44zq683kmrhjc8j1x30mycpkrvxnl";
 
   };
-  cargoSha256 = "sha256-3Wnz70DYe7mSFmvaHwxnX/w8xOlTn/uGtAhxzfsjOTM=";
+ # cargoSha256 = "sha256-3Wnz70DYe7mSFmvaHwxnX/w8xOlTn/uGtAhxzfsjOTM=";
+  cargoSha256 = "sha256-lh2MQ9U/0Vu4yWZkxzJ9MI/EMlbM0scZcRUCuDdjWOU=";
+
 
   #buildInputs = [ 
   #  nixpkgs.latest.rustChannels.stable.rust
   #];
 }
+

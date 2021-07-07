@@ -1,48 +1,19 @@
-import argparse
 import json
 from collections import defaultdict
-import sys
 import subprocess
+import sys
 import os
 import shutil
 import string
 import secrets
 import click
-
-EXAMPLE_JSON = """
-{
-	"test@test.com": {"name": "Test Testersson"},
-	"yest@yest.com": {"name": "Yest Testersson"},
-	"best@best.com": {"name": "Best Testersson"},
-	"rest@rest.com": {"name": "Rest Testersson"},
-	"pest@pest.com": {"name": "Pest Testersson"}
-}
-"""
+import tempfile
+from xkcdpass import xkcd_password
 
 
 def error(msg):
-    print(msg)
+    print(f"ERROR! {msg}", file=sys.stderr)
     sys.exit(1)
-
-def pgp_keygen(pw, email, name, t, n):
-    """Generate pgp key"""
-    subprocess.check_output(
-        [
-            "gpg",
-            "--pinentry-mode",
-            "loopback",
-            "--batch",
-            "--passphrase",
-            pw,
-            "--quick-generate-key",
-            f"'{name} <{email}>'",
-            "rsa4096",
-            "sign,encrypt,auth",
-            "never",
-        ]
-    )
-
-    return ssss_split(pw, email, t, n)
 
 
 def pwgen():
@@ -51,30 +22,182 @@ def pwgen():
     return "".join(secrets.choice(alphabet) for i in range(64))
 
 
-def pgp_export_pub(email, outpath):
-    """Export public key to path"""
-    return subprocess.check_output(
-        [
-            "gpg",
-            "-o",
-            outpath,
-            "--export",
-            "--armor",
-            email,
-        ]
-    ).decode()
+def create_file(path, content):
+    with open(path, "w") as f:
+        f.write(content)
+    return path
 
 
-def ssss_split(secret, share_name, t, n):
-    """Convert secret to ssss shares"""
+def gen_gnupg_dir():
+    """Generate a temp directory and set it as gnupg home"""
+    gnupg_path = tempfile.mkdtemp(dir="/tmp", prefix="oesr-gnupg")
+    os.environ["GNUPGHOME"] = gnupg_path
+    return gnupg_path
+
+
+def gen_person_pseudonym():
+    """Generate a random pseudonym using xkcdpass, example: uncombed-utopia"""
+    wordfile = xkcd_password.locate_wordfile()
+    mywords = xkcd_password.generate_wordlist(wordfile=wordfile)
+
+    return xkcd_password.generate_xkcdpassword(mywords, numwords=2, delimiter="-")
+
+
+def ssss_split(passphrase, threshold, num):
+    """Convert passphrase to shares using shamir's secret sharing scheme"""
     p = subprocess.Popen(
-        ["ssss-split", "-t", str(t), "-n", str(n), "-Q", "-w", share_name],
+        ["secret-share-split", "-t", str(threshold), "-n", str(num)],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
-    output = p.communicate(input=secret.encode())[0]
+    output, err = p.communicate(input=passphrase.encode())
+    if p.returncode != 0:
+        error(f"ssss_split failed:{err.decode()}`")
     return output.decode().splitlines()
+
+
+def ssss_combine(shares):
+    """Convert passphrase to shares using shamir's secret sharing scheme"""
+    p = subprocess.Popen(
+        ["secret-share-combine"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    output, err = p.communicate(input="\n".join(shares).encode())
+    if p.returncode != 0:
+        error(f"ssss_combine failed:{err.decode()}`")
+    return output.decode()
+
+
+def gen_pgp_key(pw_file, identity):
+    """Generate pgp key"""
+    subprocess.check_output(
+        [
+            "gpg",
+            "--pinentry-mode",
+            "loopback",
+            "--batch",
+            "--passphrase-file",
+            pw_file,
+            "--quick-generate-key",
+            f"'{identity} <{identity}@oesr.local>'",
+            "rsa4096",
+            "sign,encrypt,auth",
+            "never",
+        ]
+    )
+
+
+def export_pgp(path, identity):
+    """Export public key to file"""
+    subprocess.check_output(
+        [
+            "gpg",
+            "-o",
+            path,
+            "--export",
+            "--armor",
+            f"{identity}@oesr.local",
+        ]
+    ).decode()
+
+    return path
+
+
+def pgp_fingerprint(identity):
+    """Get fingerprint for the identity"""
+    out = subprocess.check_output(
+        [
+            "gpg",
+            "--list-keys",
+            "--with-colons",
+            f"{identity}@oesr.local",
+        ]
+    ).decode()
+
+    for line in out.splitlines():
+        if line.startswith("fpr"):
+            fingerprint = line.split(":")[9]
+            return fingerprint
+
+
+def verify_pgp_passphrase(pw_file, identity):
+    out = subprocess.check_output(
+        [
+            "gpg",
+            "--pinentry-mode",
+            "loopback",
+            "--batch",
+            "--passphrase-file",
+            pw_file,
+            "--export-secret-keys",
+            "-a",
+            f"{identity}@oesr.local",
+        ]
+    ).decode()
+
+
+def init_oesr(output_dir, people, threshold, num):
+    """Generate oesr peers"""
+    oesr_config = {"people": defaultdict(dict), "threshold": threshold, "num": num}
+
+    # Generate public output dir
+    os.makedirs(f"{output_dir}/public", exist_ok=True)
+
+    # Generate each persons output dir
+    for person in people:
+        os.makedirs(f"{output_dir}/{person}", exist_ok=True)
+        os.makedirs(f"{output_dir}/{person}/shares", exist_ok=True)
+
+    # Generate a tempdir and set it as GNUPGHOME
+    gnupg_path = gen_gnupg_dir()
+
+    for person in people:
+        # Generate a pseudonym for the person to use as pgp identity
+        pgp_identity = gen_person_pseudonym()
+
+        # Generate a password to use for pgp
+        pw = pwgen()
+
+        # Create password file for the persons gnupg key in $out_dir/$person/passphrase
+        pw_file = create_file(f"{output_dir}/{person}/passphrase", pw)
+
+        # Generate a list of shares from the password with shamir's secret sharing scheme
+        shares = ssss_split(pw, threshold, num)
+
+        # Generate pgp key in the keychain
+        gen_pgp_key(pw_file, pgp_identity)
+
+        # Add identity to public registry
+        oesr_config["people"][person]["identity"] = pgp_identity
+
+        # Add the fingerprint to the public registry
+        oesr_config["people"][person]["fpr"] = pgp_fingerprint(pgp_identity)
+
+        # For every other person in the list of people
+        for other_person in people:
+            if person != other_person:
+                # Take a share from the list of the persons shares
+                share = shares.pop(0)
+
+                # Save the persons share to each other persons output dir: ${out_dir}/${other_person}/shares/${person}.share
+                create_file(f"{output_dir}/{other_person}/shares/{person}.share", share)
+
+    for person in people:
+        # Copy over the keychain to the persons output dir
+        shutil.copytree(gnupg_path, f"{output_dir}/{person}/gnupg")
+
+        # Export public key into the public output dir
+        pgp_pub_path = export_pgp(
+            f"{output_dir}/public/{person}.pgp.pub",
+            oesr_config["people"][person]["identity"],
+        )
+
+    # Dump the oesr config to the public output dir
+    create_file(f"{output_dir}/public/oesr.json", json.dumps(oesr_config))
 
 
 ## CLI
@@ -82,67 +205,60 @@ def ssss_split(secret, share_name, t, n):
 def cmd():
     pass
 
+
 @cmd.command()
-@click.option("-c", "config_path", help="Config file path.")
-@click.option("-o", "out_dir", help="Output directory.")
-@click.option("-g", "gnupg_dir", default="/tmp/gnupg", help="gnupg directory.")
-@click.option("-t", "threshold", type=int, help="The SSSS share threshold.")
-def generate(config_path, out_dir, gnupg_dir, threshold):
+@click.argument("people", nargs=-1, required=True)
+@click.option("-o", "output_dir", required=True, help="Output directory.")
+@click.option(
+    "-t", "threshold", required=True, type=int, help="The SSSS share threshold."
+)
+def generate(people, output_dir, threshold):
+    num = len(people)
+    if threshold >= num:
+        error(
+            f"threshold must be smaller than the number of people: t/n = {threshold}/{num}"
+        )
+    if threshold <= 1:
+        error(f"threshold must be > 1")
+    if num <= 2:
+        error(f"Number of identities need to be > 2")
 
-    with open(config_path) as f:
-        identities = json.load(f)
+    init_oesr(output_dir, people, threshold, num)
 
-    # Threshold must be less than n shares
-    if threshold >= len(identities) - 1:
-        error("threshold must be smaller than the number of identities")
 
-    # Set keychain path
-    os.makedirs(gnupg_dir)
-    os.environ["GNUPGHOME"] = gnupg_dir
-
-    out = defaultdict(dict)
-
-    # Generate shares of password
-    for share_email, data in identities.items():
-
-        pw = pwgen()
-        pgp_shares = pgp_keygen(pw, share_email, data['name'], threshold, len(identities) - 1)
-        identities[share_email]['shares'] = pgp_shares
-        identities[share_email]['pw'] = pgp_shares
-        #identities[share_email]['shares'] = ssss_split(pw, threshold, len(identities) - 1, share_email)
-
-        for email in identities.keys():
-            # Divide the user share to each other user in the circle
-            if share_email != email:
-                out[email][share_email] = identities[share_email]['shares'].pop(-1)
-
-    # Create directory for the common public data
-    os.makedirs(out_dir)
-    os.makedirs(f"{out_dir}/all")
-
-    # Write shares to each other member in the OESR circle
-    for email, data in out.items():
-        os.makedirs(f"{out_dir}/{email}")
-
-        for share_email, share in data.items():
-            # Write share
-            with open(f"{out_dir}/{email}/{share_email}.key.share", "w") as f:
-                f.write(data[share_email])
-
-        # Copy gnupg keychain the the OESR user output dir.
-        shutil.copytree(gnupg_dir, f"{out_dir}/{email}/gnupg")
-
-    # Export public keys
-    for email in out.keys():
-        pgp_export_pub(email, f"{out_dir}/all/{email}.pgp.pub")
+def read(path):
+    with open(path, "r") as f:
+        return f.read()
 
 
 @cmd.command()
-@click.option("-f", "path", default="oesr-example.json", help="Config init path.")
-def init_example(path):
-    with open(path, "w") as f:
-        f.write(EXAMPLE_JSON)
+@click.option("-o", "output_dir", required=True, help="Output directory.")
+def verify(output_dir):
+    oesr_config = json.loads(read(f"{output_dir}/public/oesr.json"))
+
+    for person, data in oesr_config["people"].items():
+        shares = []
+
+        for other_person, other_data in oesr_config["people"].items():
+            if person != other_person:
+                shares.append(
+                    read(f"{output_dir}/{other_person}/shares/{person}.share")
+                )
+
+        secret_restored = ssss_combine(shares[: oesr_config["threshold"]])
+        secret_original = read(f"{output_dir}/{person}/passphrase")
+
+        print(f"\nCHECK: {person}({data['identity']}@oesr.local)")
+        if secret_restored == secret_original:
+            print(
+                "OK! restored secret (using threshold * shares) matches original secret"
+            )
+
+        if verify_pgp_passphrase(f"{output_dir}/{person}/passphrase", data["identity"]):
+            print("OK! passphrase saved can unlock the private key.")
 
 
-if __name__ == "__main__":
-    cmd()
+# verify()
+# cmd()
+#if __name__ == "__main__":
+    #cmd()

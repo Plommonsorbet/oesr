@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "oesr"
+version = "0.1.0"
+description = "Offline Emergency Secret Recovery"
+authors = ["Isak Johansson <isak@irq1.se>"]
+
+[tool.poetry.scripts]
+oesr-cli = 'oesr:cmd'
+[tool.poetry.dependencies]
+python = "^3.8"
+click = "^8.0.1"
+xkcdpass = "^1.19.2"
+
+[tool.poetry.dev-dependencies]
+black = "^21.6b0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
