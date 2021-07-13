@@ -67,7 +67,7 @@ _oesr.json example_
 nix-build:
 ```sh
 # Build package
-> nix-build
+> nix build
 
 # Create key structure
 > rm -r /tmp/out; ./result/bin/oesr-cli generate Rhea-Thisbe Nessa-Amor Kleio-Ing Hormazd-Philandros Hel-Phineus -t 4 -o /tmp/out;
@@ -82,7 +82,7 @@ nix-build:
 nix-shell
 ```sh
 # Build package
-> nix-shell
+> nix develop
 
 # Create key structure
 > rm -r /tmp/out; oesr-cli generate Rhea-Thisbe Nessa-Amor Kleio-Ing Hormazd-Philandros Hel-Phineus -t 4 -o /tmp/out;
@@ -120,11 +120,14 @@ cp -vi result/iso/*.iso /dev/sdX
 oesr-cli generate "firstname-lastname-1" "firstname-lastname-2" "firstname-lastname-3" "firstname-lastname-4" "firstname-lastname-5" "firstname-lastname-6" -t 4 -o /tmp/out
 ```
 
-##### Setup usb
+### Setup usb
+
+This step needs to be done for each person in the oesr circle and requires a separate usb for each person.
 
 ```sh
 # Select the usb block device
 > USB_DEVICE=/dev/sdX
+# Select the person to export to usb
 > OESR_IDENTITIY=/tmp/out/<person>
 
 # Wipe the block_device
