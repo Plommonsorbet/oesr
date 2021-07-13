@@ -103,7 +103,7 @@ nix-shell
 ```sh
 nix build './nix-live-cd#nixosConfigurations.liveCD.config.system.build.isoImage' 
 ```
-_iso can be found in ./result/iso/_ 
+_iso can be found in `./result/iso/`_ 
 
 ##### Copy the live cd to a usb
 ```sh
@@ -115,7 +115,7 @@ cp -vi result/iso/*.iso /dev/sdX
 
 *Boot from the live usb and unplug ethernet/hardware disable the wifi*
 
-##### Example generate oesr keys for 6 people with the threshold 4 and output it to /tmp/out
+##### Example generate oesr keys for 6 people with the threshold 4 and output it to `/tmp/out`
 ```sh
 oesr-cli generate "firstname-lastname-1" "firstname-lastname-2" "firstname-lastname-3" "firstname-lastname-4" "firstname-lastname-5" "firstname-lastname-6" -t 4 -o /tmp/out
 ```
