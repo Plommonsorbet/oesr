@@ -1,0 +1,14 @@
+graph TB
+  p1["person 1's key"] --> split["Split: n = people - 1, t = 3"]
+  split --> p1-1["a share of p1"]
+  split --> p1-2["a share of p1"]
+  split --> p1-3["a share of p1"]
+  split --> p1-4["a share of p1"]
+  split --> p1-5["a share of p1"]
+
+  p1-1 --> p2
+  p1-2 --> p3
+  p1-3 --> p4
+  p1-4 --> p5
+  p1-5 --> p6
+

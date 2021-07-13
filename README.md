@@ -2,7 +2,11 @@
 
 A methodology for long term backup of sensitive data leveraging shamir's secret sharing scheme and openpgp.
 
-## Overview
+## Explanation
+
+[graph-1](./media/ssss-split-graph.png)
+
+## Output directory overview
 
 _*input*_
 
@@ -29,7 +33,6 @@ $out/public
 $out/public/$person.pgp.pub - public key export
 
 $out/public/oesr.json - oser circle details containing the real name, the gpg identity and the fingerprint. To be used for automate the creation of new oesr backup items.
-
 
 _oesr.json example_
 ```json
