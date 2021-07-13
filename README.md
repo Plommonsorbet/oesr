@@ -4,7 +4,7 @@ A methodology for long term backup of sensitive data leveraging shamir's secret 
 
 ## Explanation
 
-[graph-1](./media/ssss-split-graph.png)
+![graph-1](./media/ssss-split-graph.png)
 
 ## Output directory overview
 
