@@ -40,7 +40,7 @@ nix-shell
 │  ├── Hormazd-Philandros.pgp.pub
 │  ├── Kleio-Ing.pgp.pub
 │  ├── Nessa-Amor.pgp.pub
-│  ├── oesr.json
+│  ├── oesr.json # contains each persons name mapped to their gpg pseudonym
 │  └── Rhea-Thisbe.pgp.pub
 ├── Hel-Phineus
 │  ├── gnupg # copy of ../gnupg
