@@ -22,8 +22,8 @@
   	};
       in {
         packages.sss-cli = sss-cli;
-        packages.oesr = oesrApp.dependencyEnv;
-        defaultPackage = self.packages.${system}.oesr;
+        packages.oesr-cli = oesrApp.oesrAppEnv;
+        defaultPackage = self.packages.${system}.oesr-cli;
 
         devShell = pkgs.mkShell {
           buildInputs = [ sss-cli pkgs.haskellPackages.hopenpgp-tools pkgs.poetry oesrAppEnv ];
