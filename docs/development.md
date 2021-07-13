@@ -109,7 +109,7 @@ _oesr.json example_
       "fpr": "6DF84228287C9439A16837B9E617E8F1CEF3E60F"
     }
   },
-  "threshold": 4,
-  "num": 5
+  "threshold": 4, # The threshold value set when generating the code for the first time.
+  "num": 5 # TODO remove this, double check the code that this isn't created anymore
 }
 ```
