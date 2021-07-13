@@ -12,7 +12,6 @@ _*input*_
 
  output-dir # a path to use as output directory
 
-
 _*Output Directory Structure*_
 
 $out/gnupg/
@@ -162,6 +161,7 @@ _tip after this step make sure to manually verify that the password matches_
 ```sh
 # Test open with manual password entry
 > sudo cryptsetup luksOpen $USB_DEVICE
+
 # Close the encrypted partition again
 > sudo cryptsetup luksClose $USB_DEVICE
 ```
