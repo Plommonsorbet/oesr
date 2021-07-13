@@ -79,6 +79,6 @@ _tip after this step make sure to manually verify that the password matches_
 > sudo cryptsetup luksClose $USB_DEVICE
 ```
 
-## Development/hacking
+## Development
 
 See [development](./docs/development.md) for more details about the internals and how to setup the development environment.
