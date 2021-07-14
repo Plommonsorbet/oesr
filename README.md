@@ -6,35 +6,35 @@ A methodology for long term backup of sensitive data leveraging shamir's secret 
 
 ![graph-1](./media/ssss-split-graph.png)
 
-## OESR Setup
+# OESR Setup
 
-### Live CD setup
+## Live CD setup
 
-##### Generate a NixOS live cd with the required packages
+### Generate a NixOS live cd with the required packages
 ```sh
 nix build './nix-live-cd#nixosConfigurations.liveCD.config.system.build.isoImage' 
 ```
 _iso can be found in `./result/iso/`_ 
 
-##### Copy the live cd to a usb
+### Copy the live cd to a usb
 ```sh
 cp -vi result/iso/*.iso /dev/sdX
 ```
 
-### Generate keys
+## Generate keys
 
 ***IMPORTANT! Boot from the live usb and unplug ethernet/hardware disable the wifi***
 
-##### Example generate oesr keys for 6 people with the threshold 4 and output it to `/tmp/out`
+### Example generate oesr keys for 6 people with the threshold 4 and output it to `/tmp/out`
 ```sh
 oesr-cli generate "firstname-lastname-1" "firstname-lastname-2" "firstname-lastname-3" "firstname-lastname-4" "firstname-lastname-5" "firstname-lastname-6" -t 4 -o /tmp/out
 ```
 
-### Setup usb
+## Setup usb
 
 This step needs to be done for each person in the oesr circle and requires a separate usb for each person.
 
-#### Manual usb setup
+### Manual usb setup
 
 ```sh
 # Select the usb block device
@@ -70,7 +70,7 @@ This step needs to be done for each person in the oesr circle and requires a sep
 
 ```
 
-#### Scripted usb setup
+### Scripted usb setup
 Since I'm lazy and don't like doing this so many times I wrote a small and somewhat naive [script](./oesr_usb_setup.py) to setup the usb for me. **!USE AT YOUR OWN RISK!**
 ```
 # Wipe /dev/sdX, format it with luks using the password and format the encrypted partition as an ext4 filesystem
@@ -78,7 +78,7 @@ Since I'm lazy and don't like doing this so many times I wrote a small and somew
 > sudo oesr-usb-setup -d /dev/sdX -p "<my-password>" -i /tmp/out/<person>
 ```
 
-#### Verification
+### Verification
 _tip after this step make sure to manually verify that the password matches_
 
 ```sh
@@ -89,7 +89,7 @@ _tip after this step make sure to manually verify that the password matches_
 > sudo cryptsetup luksClose $USB_DEVICE
 ```
 
-## Development
+# Development
 
 nix-build:
 ```sh
