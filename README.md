@@ -20,7 +20,6 @@ _iso can be found in `./result/iso/`_
 ##### Copy the live cd to a usb
 ```sh
 cp -vi result/iso/*.iso /dev/sdX
-
 ```
 
 ### Generate keys
@@ -73,7 +72,7 @@ This step needs to be done for each person in the oesr circle and requires a sep
 ```
 
 #### Scripted usb setup
-Since I'm lazy and don't like doing this so many times I wrote a small and somewhat naive script to setup the usb for me. **USE AT YOUR OWN RISK!**
+Since I'm lazy and don't like doing this so many times I wrote a small and somewhat naive [script](./oesr_usb_setup.py) to setup the usb for me. **!USE AT YOUR OWN RISK!**
 ```
 sudo oesr-usb-setup -d /dev/sdX -p "<my-password>" -i /tmp/out/<person>
 ```
