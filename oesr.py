@@ -234,6 +234,8 @@ def init_oesr(output_dir, people, threshold, num):
     for person in people:
         # Copy over the keychain to the persons output dir
         shutil.copytree(f"{output_dir}/gnupg", f"{output_dir}/{person}/gnupg")
+        # Make sure each person has a copy of the public export
+        shutil.copytree(f"{output_dir}/public", f"{output_dir}/{person}/public")
 
         # Export public key into the public output dir
         pgp_pub_path = export_pgp(

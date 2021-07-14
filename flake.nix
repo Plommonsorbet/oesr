@@ -9,6 +9,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         sss-cli = pkgs.callPackage ./sss-cli { };
+
   	oesrApp = pkgs.poetry2nix.mkPoetryApplication {
 		buildInputs = [ sss-cli ];
   	  projectDir = ./.;
@@ -22,11 +23,11 @@
   	};
       in {
         packages.sss-cli = sss-cli;
-        packages.oesr-cli = oesrApp.oesrAppEnv;
+        packages.oesr-cli = oesrApp.dependencyEnv;
         defaultPackage = self.packages.${system}.oesr-cli;
 
         devShell = pkgs.mkShell {
-          buildInputs = [ sss-cli pkgs.haskellPackages.hopenpgp-tools pkgs.poetry oesrAppEnv ];
+          buildInputs = [ sss-cli pkgs.haskellPackages.hopenpgp-tools pkgs.poetry oesrAppEnv tree];
         };
       });
 }

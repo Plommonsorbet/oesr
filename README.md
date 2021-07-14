@@ -36,6 +36,8 @@ oesr-cli generate "firstname-lastname-1" "firstname-lastname-2" "firstname-lastn
 
 This step needs to be done for each person in the oesr circle and requires a separate usb for each person.
 
+#### Manual usb setup
+
 ```sh
 # Select the usb block device
 > USB_DEVICE=/dev/sdX
@@ -70,7 +72,15 @@ This step needs to be done for each person in the oesr circle and requires a sep
 
 ```
 
+#### Scripted usb setup
+Since I'm lazy and don't like doing this so many times I wrote a small and somewhat naive script to setup the usb for me. **USE AT YOUR OWN RISK!**
+```
+sudo oesr-usb-setup -d /dev/sdX -p "<my-password>" -i /tmp/out/<person>
+```
+
+#### Verification
 _tip after this step make sure to manually verify that the password matches_
+
 ```sh
 # Test open with manual password entry
 > sudo cryptsetup luksOpen $USB_DEVICE

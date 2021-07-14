@@ -6,6 +6,7 @@ authors = ["Isak Johansson <isak@irq1.se>"]
 
 [tool.poetry.scripts]
 oesr-cli = 'oesr:cmd'
+oesr-usb-setup = 'oesr_usb_setup:main'
 
 [tool.poetry.dependencies]
 python = "^3.8"
