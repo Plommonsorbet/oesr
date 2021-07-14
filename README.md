@@ -6,7 +6,6 @@ A methodology for long term backup of sensitive data leveraging shamir's secret 
 
 ![graph-1](./media/ssss-split-graph.png)
 
-
 ## OESR Setup
 
 ### Live CD setup
@@ -91,8 +90,6 @@ _tip after this step make sure to manually verify that the password matches_
 ```
 
 ## Development
-
-# Development
 
 nix-build:
 ```sh
