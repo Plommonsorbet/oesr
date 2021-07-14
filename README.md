@@ -73,13 +73,12 @@ This step needs to be done for each person in the oesr circle and requires a sep
 ### Scripted usb setup
 Since I'm lazy and don't like doing this so many times I wrote a small and somewhat naive [script](./oesr_usb_setup.py) to setup the usb for me. **!USE AT YOUR OWN RISK!**
 ```
-# Wipe /dev/sdX, format it with luks using the password and format the encrypted partition as an ext4 filesystem
-# then move the persons exported output into the usb and unmount and close
+# This wipes the device, creates an encrypted luks volume and copies over the person's exported output. It will ask you to confirm before starting.
 > sudo oesr-usb-setup -d /dev/sdX -p "<my-password>" -i /tmp/out/<person>
 ```
 
 ### Verification
-_tip after this step make sure to manually verify that the password matches_
+_it's important to verify the password works after the usb is generated, do this manually._
 
 ```sh
 # Test open with manual password entry
