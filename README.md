@@ -23,7 +23,7 @@ cp -vi result/iso/*.iso /dev/sdX
 
 ## Generate keys
 
-***IMPORTANT! Boot from the live usb and unplug ethernet/hardware disable the wifi***
+**IMPORTANT!** *Boot from the live usb and unplug ethernet/hardware disable the wifi*
 
 ### Example generate oesr keys for 6 people with the threshold 4 and output it to `/tmp/out`
 ```sh
