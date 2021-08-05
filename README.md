@@ -1,10 +1,17 @@
-# OESR
+# OESR: Offline Emergency Secret Recovery 
 
-A methodology for long term backup of sensitive data leveraging shamir's secret sharing scheme and openpgp.
+A methodology for long term backup of critical and sensitive data leveraging secret sharing and pki.
+
+## Background
+
 
 ## Explanation
 
+
 ![graph-1](./media/ssss-split-graph.png)
+
+
+![graph-2](./media/private-key-sharing-distribution.png)
 
 # OESR Setup
 
@@ -27,7 +34,7 @@ cp -vi result/iso/*.iso /dev/sdX
 
 ### Example generate oesr keys for 6 people with the threshold 4 and output it to `/tmp/out`
 ```sh
-oesr-cli generate "firstname-lastname-1" "firstname-lastname-2" "firstname-lastname-3" "firstname-lastname-4" "firstname-lastname-5" "firstname-lastname-6" -t 4 -o /tmp/out
+oesr-cli generate "firstname-lastname-1" "firstname-lastname-2" "firstname-lastname-3" "firstname-lastname-4" "firstname-lastname-5" "firstname-lastname-6" -t 3 -o /tmp/out
 ```
 
 ## Setup usb
@@ -118,60 +125,6 @@ nix-shell
 
 # Lint created keys
 > oesr-cli lint -o /tmp/out;
-```
-
-# Output Directory Overview
-
-```
-/tmp/out
-├── gnupg # gpg keychain containing all keys
-├── public # public keys and json containg each identity's pseudonym.
-│  ├── Hel-Phineus.pgp.pub
-│  ├── Hormazd-Philandros.pgp.pub
-│  ├── Kleio-Ing.pgp.pub
-│  ├── Nessa-Amor.pgp.pub
-│  ├── oesr.json # contains each persons name mapped to their gpg pseudonym as well as the threshold value
-│  └── Rhea-Thisbe.pgp.pub
-├── Hel-Phineus
-│  ├── gnupg # copy of ../gnupg
-│  ├── passphrase # the passphrase for the key owned by this user
-│  └── shares # the shares of each other persons password
-│     ├── Hormazd-Philandros.share
-│     ├── Kleio-Ing.share
-│     ├── Nessa-Amor.share
-│     └── Rhea-Thisbe.share
-├── Hormazd-Philandros
-│  ├── gnupg # copy of ../gnupg
-│  ├── passphrase # the passphrase for the key owned by this user
-│  └── shares # the shares of each other persons password
-│     ├── Hel-Phineus.share
-│     ├── Kleio-Ing.share
-│     ├── Nessa-Amor.share
-│     └── Rhea-Thisbe.share
-├── Kleio-Ing
-│  ├── gnupg # copy of ../gnupg
-│  ├── passphrase # the passphrase for the key owned by this user
-│  └── shares # the shares of each other persons password
-│     ├── Hel-Phineus.share
-│     ├── Hormazd-Philandros.share
-│     ├── Nessa-Amor.share
-│     └── Rhea-Thisbe.share
-├── Nessa-Amor
-│  ├── gnupg # copy of ../gnupg
-│  ├── passphrase # the passphrase for the key owned by this user
-│  └── shares # the shares of each other persons password
-│     ├── Hel-Phineus.share
-│     ├── Hormazd-Philandros.share
-│     ├── Kleio-Ing.share
-│     └── Rhea-Thisbe.share
-└── Rhea-Thisbe
-   ├── gnupg # copy of ../gnupg
-   ├── passphrase # the passphrase for the key owned by this user
-   └── shares # the shares of each other persons password
-      ├── Hel-Phineus.share
-      ├── Hormazd-Philandros.share
-      ├── Kleio-Ing.share
-      └── Nessa-Amor.share
 ```
 
 _oesr.json example_
