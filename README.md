@@ -11,7 +11,7 @@ A methodology for long term backup of critical and sensitive data leveraging sec
 ![graph-1](./media/ssss-split-graph.png)
 
 
-![graph-2](./media/private-key-sharing-distribution.png)
+![graph-2](./media/private-key-share-distribution.png)
 
 # OESR Setup
 
