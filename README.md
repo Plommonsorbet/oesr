@@ -1,17 +1,18 @@
 # OESR: Offline Emergency Secret Recovery 
 
-A methodology for long term backup of critical and sensitive data leveraging secret sharing and pki.
+A methodology or system for a maintainable long term backups of critical and sensitive data leveraging secret sharing and pki to ensure security and redundancy.
 
 ## Background
 
+Before this I had a similar system for backing up my gpg keys, that setup consisted of symmetrically encrypting my gpg key with a 64 character key and then splitting this into 7 parts which was placed on each usb. The symetrical key I also split into a few pieces and created qr codes for these shares and hid them in various places.
 
-## Explanation
+This worked fine and I was very happy with the security, however this was completely un-maintainable over time as I wanted to add more things. The logistics of gathering all my usbs into one place was such a pain, as well as this was a potential security flaw as this introduced a time of vulnerability.
 
+So I wanted to solve how I keep the aspects I like but make this actually maintainable for me, through a ton of thinking and discussions about this problem space the solution that emerged is that you need to split the data and the encryption. 
 
-![graph-1](./media/ssss-split-graph.png)
+The encryption keys rarely need to be changed or accessed unless all hell breaks loose and I need to actually recover something, so instead this method is designed in such a way that on the usb's you store the way to recover the secrets and so you can encrypt new secret without access to the encryption keys, then you can store the data in the cloud, on usbs, paper or whatever medium you wish.
 
-
-![graph-2](./media/private-key-share-distribution.png)
+You can read the in depth design of the system [here](./docs/DESIGN.md).
 
 # OESR Setup
 
