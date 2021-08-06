@@ -15,7 +15,7 @@
           ({ pkgs, ... }: {
 
             nixpkgs.overlays =
-              [ (final: prev: { oesr = oesr."x86_64-linux".packages; }) ];
+              [ (final: prev: { oesr = oesr.packages."x86_64-linux"; }) ];
 
             imports = [ (import ./live-cd.nix) ];
 
