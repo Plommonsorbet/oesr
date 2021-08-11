@@ -15,6 +15,8 @@ The encryption keys rarely need to be changed or accessed unless all hell breaks
 
 ## Description
 
+*Note I'm using dsprenkels implementation of ssss which already generates a random key and encrypts the data with the key. Normally it is not safe to split anything other than completely random data with SSSS*
+
 The core principle of this methodology is having a number of what I will call _peers_, this is essentially just a usb that you could give to someone, or hide somewhere. These usbs all have their own pgp key, however they also contain a SSSS share of each others keys. So that as a group you can always "restore" another peer, this is for the sake of redundancy. 
 
 Example: person 1 splits their key into N shares which is the number of people - 1 since you own your own complete key, and setting the threshold to 3. This means that we have a redundancy of 1, we can lose one usb before it is no longer possible to recover a peer.
@@ -24,7 +26,7 @@ Another example to illustrate the key sharing between the peers:
 ![graph-2](./media/private-key-share-distribution.png)
 
 These peers will then stay offline at all times to ensure they can't be accessed or tampered with, you won't need them again until you actually want to do an emergency restore on a secret. 
-To create a new secret you would generate a random key and using SSSS split it into as many shares as you have peers and then you would take each share and encrypt it with the public key of  each peer. This way you have created redundancy in that you can loose either a share or a usb and as long as you have enough to meet the threshold you can decrypt the backup again by traveling to each peer and unlocking that specific share.
+To create a new secret you would take some data SSSS split it into as many shares as you have peers and then you would take each share and encrypt it with the public key of  each peer. This way you have created redundancy in that you can loose either a share or a usb and as long as you have enough to meet the threshold you can decrypt the backup again by traveling to each peer and unlocking that specific share.
 
 Example: You can see this in action here, a secret is split into one share per key holder and each share is encrypted with their public key.
 ![graph-3](./media/create-new-secure-backup.png)
