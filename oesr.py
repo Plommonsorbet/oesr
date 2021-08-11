@@ -16,7 +16,6 @@ FAIL = "\033[91m"
 ENDC = "\033[0m"
 BOLD = "\033[1m"
 
-
 def error(msg):
     print(f"{FAIL}ERROR! {msg}{ENDC}", file=sys.stderr)
     sys.exit(1)
@@ -191,6 +190,9 @@ def init_oesr(output_dir, people, threshold, num):
     # Generate public output dir
     os.makedirs(f"{output_dir}/public", exist_ok=True)
 
+    # Generate the keep dir
+    os.makedirs(f"{output_dir}/keep", exist_ok=True)
+
     # Generate each persons output dir
     for person in people:
         os.makedirs(f"{output_dir}/{person}", exist_ok=True)
@@ -247,7 +249,12 @@ def init_oesr(output_dir, people, threshold, num):
         shutil.copytree(f"{output_dir}/public", f"{output_dir}/{person}/public")
 
     # Dump the oesr config to the public output dir
-    create_file(f"{output_dir}/oesr-mappings.json", json.dumps(oesr_config))
+    create_file(f"{output_dir}/keep/oesr.json", json.dumps(oesr_config))
+
+    # ENDC GREEN
+    print(f"{GREEN}Initialised oesr peers in {output_dir}! {ENDC}\n")
+    print(f"{CYAN}You can now use the verify and lint the {output_dir} with the oesr-cli{ENDC}\n")
+    print(f"{CYAN}Remember to grab a copy of the {output_dir}/public directory and memorise or figure out a way to store the pseudonym mappings stored in {output_dir}/keep {ENDC}\n")
 
 
 
@@ -290,7 +297,7 @@ def verify(output_dir):
     """Run some basic verifications."""
 
     set_gnupg_dir(f"{output_dir}/gnupg")
-    oesr_config = json.loads(read(f"{output_dir}/public/oesr.json"))
+    oesr_config = json.loads(read(f"{output_dir}/keep/oesr.json"))
 
     for person, data in oesr_config["people"].items():
         shares = []
@@ -326,7 +333,7 @@ def lint(output_dir):
     """Lint each persons certificate and print result."""
 
     set_gnupg_dir(f"{output_dir}/gnupg")
-    oesr_config = json.loads(read(f"{output_dir}/public/oesr.json"))
+    oesr_config = json.loads(read(f"{output_dir}/keep/oesr.json"))
 
     for person, data in oesr_config["people"].items():
         print(f"{BOLD}{CYAN}LINT!{ENDC} {person}")
