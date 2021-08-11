@@ -28,10 +28,10 @@ Another example to illustrate the key sharing between the peers:
 These peers will then stay offline at all times to ensure they can't be accessed or tampered with, you won't need them again until you actually want to do an emergency restore on a secret. 
 To create a new secret you would take some data SSSS split it into as many shares as you have peers and then you would take each share and encrypt it with the public key of  each peer. This way you have created redundancy in that you can loose either a share or a usb and as long as you have enough to meet the threshold you can decrypt the backup again by traveling to each peer and unlocking that specific share.
 
-Example: You can see this in action here, a secret is split into one share per key holder and each share is encrypted with their public key.
+Example: You can see a smaller version of the same setup in action here, a secret is split into one share per key holder and each share is encrypted with their public key.
 ![graph-6](./media/create-new-secure-backup-item.png)
 
-To actually restore this secret if the SSSS threshold was set to 5 then we would need to get physical access to 5 keyholders.
+To actually restore this secret if the SSSS threshold was set to 3 then we would need to get physical access to 3 keyholders.
 
 
 The result of splitting the encryption and the data like this means that it is super easy to create another secret and it lowers the barrier at how paranoid you have to be about how you store the actual data, you can create many copies of it however you will not be able to access it other than in person
