@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 COLORS = [ "crimson", "tan", "darkgray", "goldenrod", "darkgray", "thistle", "aquamarine", "rosybrown" ]
-PEOPLE = [ "Fred-Roberts", "Fredrick-Gilbert", "Duane-Mcdaniel", "Rochelle-Jordan", "Omar-Scott", "Ellis-Griffith", "Wilbert-Gibson", "Beth-Fleming" ]
+PEOPLE = [ "Fred-Roberts", "Fredrick-Gilbert", "Duane-Mcdaniel", "Rochelle-Jordan"]
 
 print("digraph G {")
 for i, person in enumerate(PEOPLE):
