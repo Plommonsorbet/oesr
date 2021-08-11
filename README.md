@@ -29,7 +29,7 @@ These peers will then stay offline at all times to ensure they can't be accessed
 To create a new secret you would take some data SSSS split it into as many shares as you have peers and then you would take each share and encrypt it with the public key of  each peer. This way you have created redundancy in that you can loose either a share or a usb and as long as you have enough to meet the threshold you can decrypt the backup again by traveling to each peer and unlocking that specific share.
 
 Example: You can see this in action here, a secret is split into one share per key holder and each share is encrypted with their public key.
-![graph-5](./media/create-new-secure-backup.png)
+![graph-6](./media/create-new-secure-backup-item.png)
 
 To actually restore this secret if the SSSS threshold was set to 5 then we would need to get physical access to 5 keyholders.
 
