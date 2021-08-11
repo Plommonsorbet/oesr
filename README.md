@@ -28,7 +28,7 @@ If you want to try your hand at this then this is what you'll need:
 ### Live CD Setup
 
 ```sh
-nix build './nix-live-cd#nixosConfigurations.liveCD.config.system.build.isoImage' 
+nix build './live-cd#nixosConfigurations.liveCD.config.system.build.isoImage' 
 ```
 _iso can be found in `./result/iso/`_ 
 
@@ -103,6 +103,9 @@ _it's important to verify the password works after the usb is generated, do this
 > sudo cryptsetup luksClose /dev/mapper/oesr-enc-usb
 
 ```
+
+
+### Save the public directory of 
 
 ### Distribute the keys
 
