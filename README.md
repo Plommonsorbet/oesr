@@ -1,8 +1,9 @@
 # OESR: Offline Emergency Secret Recovery 
 
-A methodology or system for a maintainable long term backups of critical and sensitive data leveraging secret sharing and pki to ensure security and redundancy.
+A methodology or system for a long term backups of critical and sensitive data with a focus on maintainability to make it simple, quick and pain free to create new secure offline backups. 
 
-## Background
+
+## Origin / Background 
 
 Before this I had a similar system for backing up my gpg keys, that setup consisted of symmetrically encrypting my gpg key with a 64 character key and then splitting this into 7 parts which was placed on each usb. The symetrical key I also split into a few pieces and created qr codes for these shares and hid them in various places.
 
@@ -12,7 +13,26 @@ So I wanted to solve how I keep the aspects I like but make this actually mainta
 
 The encryption keys rarely need to be changed or accessed unless all hell breaks loose and I need to actually recover something, so instead this method is designed in such a way that on the usb's you store the way to recover the secrets and so you can encrypt new secret without access to the encryption keys, then you can store the data in the cloud, on usbs, paper or whatever medium you wish.
 
-You can read the in depth design of the system [here](./docs/DESIGN.md).
+## Description
+
+The core principle of this methodology is having a number of what I will call _peers_, this is essentially just a usb that you could give to someone, or hide somewhere. These usbs all have their own pgp key, however they also contain a SSSS share of each others keys. So that as a group you can always "restore" another peer, this is for the sake of redundancy. 
+
+Example: person 1 splits their key into N shares which is the number of people - 1 since you own your own complete key, and setting the threshold to 3. This means that we have a redundancy of 1, we can lose one usb before it is no longer possible to recover a peer.
+![graph-1](../media/ssss-split-graph.png)
+
+Another example to illustrate the key sharing between the peers:
+![graph-2](../media/private-key-share-distribution.png)
+
+These peers will then stay offline at all times to ensure they can't be accessed or tampered with, you won't need them again until you actually want to do an emergency restore on a secret. 
+To create a new secret you would generate a random key and using SSSS split it into as many shares as you have peers and then you would take each share and encrypt it with the public key of  each peer. This way you have created redundancy in that you can loose either a share or a usb and as long as you have enough to meet the threshold you can decrypt the backup again by traveling to each peer and unlocking that specific share.
+
+Example: You can see this in action here, a secret is split into one share per key holder and each share is encrypted with their public key.
+![graph-3](../media/create-new-secure-backup.png)
+
+To actually restore this secret if the SSSS threshold was set to 5 then we would need to get physical access to 5 keyholders.
+
+
+The result of splitting the encryption and the data like this means that it is super easy to create another secret and it lowers the barrier at how paranoid you have to be about how you store the actual data, you can create many copies of it however you will not be able to access it other than in person
 
 # Using OESR
 
