@@ -133,11 +133,27 @@ _it's important to verify the password works after the usb is generated, do this
 ```
 
 
-### Save the public directory of 
+### Keep a copy of the public directory
+
+Make sure you also grab a copy of the public directory `/tmp/out/public` which contains all the public keys, make sure you don't loose this. You could upload the keys to keyservers and just keep a physical paper containing all the fingerprints.
 
 ### Distribute the keys
 
+Distribute the keys to your peers or hide them in places you'll remember.
+
 ## Backup secret
+
+To create a new secret use the sss-cli to split a secret, you can use this line to create a separate file for each share.
+
+```sh
+secret-share-split -n 6 -t 4 secret.txt | awk '{ printf "%s,%s\n", NR, 1}'| while IFS=',' read -r index share; do echo "${share}" > secret_share_${index}.txt; done
+```
+
+Then gpg encrypt each share with the corresponding peer's gpg key.
+
+```sh
+gpg -e -r firstname-lastname-1  -o secret_share_1.txt.enc secret_share_1.txt
+```
 
 # Hacking
 
