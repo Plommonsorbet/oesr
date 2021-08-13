@@ -4,13 +4,15 @@ COLORS = [ "crimson", "tan", "darkgray", "goldenrod", "darkgray", "thistle", "aq
 PEOPLE = [ "Fred-Roberts", "Fredrick-Gilbert", "Duane-Mcdaniel", "Rochelle-Jordan"]
 
 print("digraph G {")
+print('split [label="split secret"]')
+print('secret -> split')
 for i, person in enumerate(PEOPLE):
-    print(f'p_{i} [label="encrypt with pub key of {person}"]')
+    print(f'p_{i} [label="encrypt for {person}"]')
 
-    print(f'secret -> p_{i} [label="share"]')
+    print(f'split -> p_{i} [label="secret share"]')
 
-    print(f'backup_{i} [label="backup share encrypted with {person}\'s key"]')
-    print(f'p_{i} -> backup_{i}')
+    print(f'backup_{i} [label="store data"]')
+    print(f'p_{i} -> backup_{i} [label="encrypted share"]')
 print("}")
 
 #print("")
