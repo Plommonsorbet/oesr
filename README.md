@@ -5,8 +5,9 @@ A methodology or system for a long term backups of critical and sensitive data w
 
 ## Description
 
+Keeping long term offline only backups is hard and there is many pitfalls. Hardware can fail or get destroyed so you need multiple copies and in multiple locations, but travel time quickly adds up especially if your copies are not local or you have a ton of them. So it's easy to miss traveling to each copy for new things you want to add or get sloppy because of the hassle and not take backups at all. This also has security pitfalls, as you have more copies in multiple locations it gets harder to ensure the physical security of the copies, one might get stolen or lost. 
 
-
+The idea behind OESR is to have a cost effective offline backup system that is both cost effective, secure and has a low upfront cost of creating a new backup of sensitive data limiting the travel needed to first time setup and when you actually need to restore a secret. This is made possible through [Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing)(SSS) and [PKI](https://en.wikipedia.org/wiki/Public_key_infrastructure).
 
 ## Origin / Background 
 
@@ -20,9 +21,9 @@ The encryption keys rarely need to be changed or accessed unless all hell breaks
 
 ## Description
 
-*Note I'm using dsprenkels implementation of ssss which already generates a random key and encrypts the data with the key. Normally it is not safe to split anything other than completely random data with SSSS*
+*Note I'm using dsprenkels implementation of ssss which already generates a random key and encrypts the data with the key. Normally it is not safe to split anything other than completely random data with SSS*
 
-The core principle of this methodology is having a number of what I will call _peers_, this is essentially just a usb that you could give to someone, or hide somewhere. These usbs all have their own pgp key, however they also contain a SSSS share of each others keys. So that as a group you can always "restore" another peer, this is for the sake of redundancy. 
+The core principle of this methodology is having a number of what I will call _peers_, this is essentially just a usb that you could give to someone, or hide somewhere. These usbs all have their own pgp key, however they also contain a SSS share of each others keys. So that as a group you can always "restore" another peer, this is for the sake of redundancy. 
 
 Example: person 1 splits their key into N shares which is the number of people - 1 since you own your own complete key, and setting the threshold to 3. This means that we have a redundancy of 1, we can lose one usb before it is no longer possible to recover a peer.
 ![graph-1](./media/ssss-split-graph.png)
@@ -31,12 +32,12 @@ Another example to illustrate the key sharing between the peers:
 ![graph-2](./media/private-key-share-distribution.png)
 
 These peers will then stay offline at all times to ensure they can't be accessed or tampered with, you won't need them again until you actually want to do an emergency restore on a secret. 
-To create a new secret you would take some data SSSS split it into as many shares as you have peers and then you would take each share and encrypt it with the public key of  each peer. This way you have created redundancy in that you can loose either a share or a usb and as long as you have enough to meet the threshold you can decrypt the backup again by traveling to each peer and unlocking that specific share.
+To create a new secret you would take some data SSS split it into as many shares as you have peers and then you would take each share and encrypt it with the public key of  each peer. This way you have created redundancy in that you can loose either a share or a usb and as long as you have enough to meet the threshold you can decrypt the backup again by traveling to each peer and unlocking that specific share.
 
 Example: You can see a smaller version of the same setup in action here, a secret is split into one share per key holder and each share is encrypted with their public key.
 ![graph-6](./media/create-new-secure-backup.png)
 
-To actually restore this secret if the SSSS threshold was set to 3 then we would need to get physical access to 3 keyholders.
+To actually restore this secret if the SSS threshold was set to 3 then we would need to get physical access to 3 keyholders.
 
 
 The result of splitting the encryption and the data like this means that it is super easy to create another secret and it lowers the barrier at how paranoid you have to be about how you store the actual data, you can create many copies of it however you will not be able to access it other than in person
