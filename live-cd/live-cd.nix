@@ -3,7 +3,7 @@
   #services.udev.packages = with pkgs; [ yubikey-personalization ];
 
   environment.systemPackages = with pkgs;
-    [ gnupg pinentry-curses haskellPackages.hopenpgp-tools oesr.sss-cli oesr.oesr-cli ];
+    [ gnupg pinentry-curses haskellPackages.hopenpgp-tools oesr.sss-cli oesr.oesr-cli pwgen];
 
   #programs = {
   #  ssh.startAgent = false;
