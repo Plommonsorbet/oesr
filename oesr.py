@@ -233,6 +233,8 @@ def init_oesr(output_dir, people, threshold, num):
                 # Save the persons share to each other persons output dir: ${out_dir}/${other_person}/shares/${person}.share
                 create_file(f"{output_dir}/{other_person}/shares/{person}.share", share)
 
+
+            
     for person in people:
         # Copy over the keychain to the persons output dir
         shutil.copytree(f"{output_dir}/gnupg", f"{output_dir}/{person}/gnupg")
@@ -244,12 +246,22 @@ def init_oesr(output_dir, people, threshold, num):
         )
 
 
+    with open(f"{output_dir}/public/peer-list.txt", "a") as f:
+        for person in people:
+            pgp_identity = oesr_config["people"][person]["identity"] 
+            pgp_fpr = oesr_config["people"][person]["fpr"]
+            f.write(f"{pgp_fpr}-{pgp_identity}\n")
+
+        f.close()
+
     # Make sure each person has a copy of the public export
     for person in people:
         shutil.copytree(f"{output_dir}/public", f"{output_dir}/{person}/public")
 
     # Dump the oesr config to the public output dir
     create_file(f"{output_dir}/keep/oesr.json", json.dumps(oesr_config))
+
+
 
     # ENDC GREEN
     print(f"{GREEN}Initialised oesr peers in {output_dir}! {ENDC}\n")
